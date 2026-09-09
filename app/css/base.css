@@ -1,0 +1,75 @@
+/* Reset + page frame. Deliberately small. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;              /* A TV never scrolls the document. */
+  background: var(--bg);
+  color: var(--ink-hi);
+  font-family: "Inter", "Roboto", "Amazon Ember", system-ui, -apple-system, sans-serif;
+  font-weight: var(--w-med);
+  font-size: var(--t-md);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+/* No text selection, no drag, no long-press menus. This is a remote, not a mouse. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: none;                  /* Fire TV has no pointer. Hide the stray cursor. */
+}
+
+img { max-width: 100%; -webkit-user-drag: none; }
+button { font: inherit; color: inherit; background: none; border: 0; }
+
+::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+h1, h2, h3, p { margin: 0; }
+
+/* --- Boot / fatal error -----------------------------------------------------
+   A TV has no dev tools. If the page throws, the only place the message can go
+   is the screen — otherwise you get a black rectangle and no way to tell why. */
+
+#fatal {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: none;
+  padding: var(--safe-y) var(--safe-x);
+  background: var(--bg);
+  z-index: 9999;
+  overflow: auto;
+}
+#fatal.on { display: block; }
+#fatal h2 {
+  font-size: var(--t-xl);
+  font-weight: var(--w-semi);
+  color: var(--bad);
+  margin-bottom: var(--s3);
+}
+#fatal pre {
+  font-family: "SF Mono", "Consolas", monospace;
+  font-size: var(--t-sm);
+  color: var(--ink-mid);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s3);
+  margin-bottom: var(--s3);
+}
+#fatal .hint { color: var(--ink-low); font-size: var(--t-sm); }
+
+/* --- Utility ---------------------------------------------------------------- */
+
+.dim  { color: var(--ink-mid); }
+.dimmer { color: var(--ink-low); }
+.num  { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+.hidden { display: none !important; }

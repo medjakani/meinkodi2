@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "appName": "Lumen Board",
+  "theme": "ember",
+  "lang": "de",
+  "contentUrl": "https://medjakani.github.io/meinkodi2/app/?t=ember&b=Lumen+Board",
+  "contentVersion": "2026.09.09-1",
+  "minShellVersionCode": 1,
+  "keepScreenOn": true,
+  "refreshMinutes": 360,
+  "notice": null,
+  "buttons": []
+}

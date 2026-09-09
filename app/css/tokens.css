@@ -1,0 +1,105 @@
+/* ---------------------------------------------------------------------------
+   Design tokens.
+
+   Every value here is chosen for a screen watched from ~10 feet on hardware
+   that may be a $25 stick. Nothing is decorative-by-accident: if you change a
+   number, read the comment first.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Surfaces.
+     Not #000. Pure black bands badly on cheap LCD panels and makes the panel
+     bezel edge visible as a lighter frame in a dark room. */
+  --bg:        #0B0E14;
+  --bg-1:      #141924;
+  --bg-2:      #1C2231;
+  --bg-3:      #262E3F;
+  --line:      #2A3244;
+
+  /* Ink.
+     Not #FFF. Pure white halates (blooms) on bright TV panels and is fatiguing
+     at 10 feet. #F2F5FA reads as white without the glare. */
+  --ink-hi:    #F2F5FA;
+  --ink-mid:   #A6B0C3;
+  --ink-low:   #6C7893;
+
+  --accent:     #4EA8FF;
+  --accent-dim: #2B6FB5;
+
+  /* The accent again as bare RGB channels. The focus halo needs the accent at
+     22% alpha, and rgba() cannot take a hex custom property — so the channels
+     have to be available separately. color-mix() would be the modern answer;
+     it is Chrome 111+, far past the Fire OS 6/7 baseline. */
+  --accent-rgb: 78, 168, 255;
+  --on-accent:  #0B0E14;
+
+  /* --- Call to action -----------------------------------------------------
+     Sampled from the Pulse Player icon itself (#FE8703), not guessed and not
+     Amazon's #FF9900 — so the button and the product's own mark are the same
+     colour on screen.
+
+     Deliberately NOT --accent. The page chrome stays cool grey-blue and this is
+     the only saturated colour anywhere on it, which is what makes the button
+     read as "the one thing to press" rather than as another blue element among
+     blue elements. Spreading it around would destroy that. */
+  --cta:      #FE8703;
+  --cta-rgb:  254, 135, 3;
+  --cta-dim:  #A9631A;
+  /* Warm near-black rather than #000: pure black on a saturated orange looks
+     harsh and cheap at 10 feet. */
+  --on-cta:   #1A0F02;
+
+
+  /* The focus ring. Near-white on every theme, but warmed per theme so it
+     never reads as a cold sticker pasted onto a warm palette. */
+  --focus-ring: rgba(255, 255, 255, .92);
+  --warm:       #FFB454;
+  --ok:         #4ADE80;
+  --warn:       #FBBF24;
+  --bad:        #F87171;
+
+  /* Type scale.
+     boot.js sets the root font-size from viewport height, so 1rem is ~32px at
+     1080p, ~21px at 720p and ~64px at 4K. That clears Amazon's body-text floor
+     (14sp, about 28px at 1080p) and means one layout serves every panel
+     instead of three sets of media queries. */
+  --t-hero: 5.00rem;
+  --t-xl:   1.70rem;
+  --t-lg:   1.25rem;
+  --t-md:   1.00rem;
+  /* Floor. Nothing smaller than this ships. 0.90rem lands at ~28.6px on
+     1080p, which puts even labels and captions over Amazon's 14sp minimum,
+     so no string anywhere on the screen is undersized for review. */
+  --t-sm:   0.90rem;
+
+  --w-reg:  400;
+  --w-med:  500;       /* Thin weights disappear on TV. 500 is the minimum. */
+  --w-semi: 600;
+  --w-bold: 700;
+
+  --s1: 0.40rem;
+  --s2: 0.80rem;
+  --s3: 1.20rem;
+  --s4: 2.00rem;
+  --s5: 3.20rem;
+
+  --r-sm: 0.30rem;
+  --r-md: 0.55rem;
+  --r-lg: 0.85rem;
+
+  /* Motion.
+     140ms is the sweet spot: long enough to read as movement, short enough
+     that a slow stick still feels responsive. Anything over ~200ms on a
+     focus change reads as lag, not polish. */
+  --dur-fast: 120ms;
+  --dur:      140ms;
+  --dur-slow: 260ms;
+  --ease: cubic-bezier(.2, .7, .3, 1);
+
+  /* Safe area. Amazon asks that everything sit inside the inner 90%, i.e.
+     clear of the outer 5%. 5.5 rather than 5 because a viewport that rounds
+     down, or a panel with slightly more overscan than nominal, eats the
+     difference and puts the layout edge back into the danger zone. */
+  --safe-x: 5.5vw;
+  --safe-y: 5.5vh;
+}

@@ -1,0 +1,670 @@
+/* ---------------------------------------------------------------------------
+   Layout + widgets.
+
+   Baseline is Chromium ~59 (the Fire OS 6/7 WebView). That rules out:
+     flex `gap`, `clamp()`, `inset`, `:is()`, `aspect-ratio`, `backdrop-filter`.
+   Grid is fine (Chrome 57) but must use `grid-gap`, not the `gap` shorthand.
+   --------------------------------------------------------------------------- */
+
+#stage {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  padding: var(--safe-y) var(--safe-x);
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease);
+  /* Burn-in drift is applied here by clock.js via translate(). */
+  will-change: transform, opacity;
+}
+#stage.ready { opacity: 1; }
+
+/* ========================================================= WORDMARK ====== */
+/* Top-right, quiet. It balances the clock in the opposite corner and makes
+   the screen read as a product rather than a loose widget, without
+   competing with the thing people actually came to look at. */
+
+.wordmark {
+  position: absolute;
+  top: var(--safe-y);
+  right: var(--safe-x);
+  font-size: var(--t-sm);
+  font-weight: var(--w-semi);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-low);
+  white-space: nowrap;
+}
+
+/* ============================================================ CLOCK ======= */
+
+.clock {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  margin-bottom: var(--s5);
+}
+
+.clock-time {
+  font-size: var(--t-hero);
+  font-weight: var(--w-semi);
+  line-height: .92;
+  letter-spacing: -0.02em;
+  color: var(--ink-hi);
+  /* Tabular figures. Without this the whole line twitches sideways every time
+     a 1 replaces a 0, which is maddening on a screen you only glance at. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.clock-secs {
+  font-size: var(--t-lg);
+  font-weight: var(--w-med);
+  color: var(--ink-low);
+  /* Set in em of the SECONDS size, and generous: without real separation the
+     eye reads "7:31" + "59" as the single number 73159. */
+  margin-left: .5em;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-meridiem {
+  font-size: var(--t-lg);
+  font-weight: var(--w-semi);
+  color: var(--ink-mid);
+  margin-left: .6em;
+  letter-spacing: .04em;
+}
+.clock-meridiem:empty { margin-left: 0; }   /* 24-hour locales: no dangling gap */
+
+.clock-date {
+  font-size: var(--t-lg);
+  font-weight: var(--w-med);
+  color: var(--ink-mid);
+  margin-top: var(--s3);
+  letter-spacing: .01em;
+}
+
+/* ============================================================= TILES ====== */
+
+.tiles {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  grid-gap: var(--s4);
+  align-content: end;
+  min-height: 0;
+}
+
+.tile {
+  position: relative;                /* so focus scale() paints above siblings */
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--s4);
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  transition:
+    -webkit-transform var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.tile-head {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: baseline;
+  align-items: baseline;
+  margin-bottom: var(--s3);
+}
+.tile-title {
+  font-size: var(--t-sm);
+  font-weight: var(--w-semi);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-low);
+}
+.tile-hint {
+  margin-left: auto;
+  font-size: var(--t-sm);
+  color: var(--ink-low);
+}
+
+/* --- Focus -----------------------------------------------------------------
+   The most important rule in this file. On a TV there is no pointer, so the
+   focus ring is the only thing telling the viewer where they are. Scale +
+   ring + lift, never colour alone: colour fails on a washed-out panel, in a
+   bright room, and for a colour-blind viewer, often all at once. */
+
+[data-focusable] { outline: none; }
+
+/* `.nav-focus` is set by nav.js and is the one that actually matters.
+   CSS :focus stops matching the moment the WebView loses window-level focus —
+   a system dialog, a launcher overlay, or simply the shell forgetting to call
+   requestFocus() — and the highlight silently disappears, leaving a screen
+   that looks frozen. The class survives all of that. :focus is kept alongside
+   it only so the page still behaves in a desktop browser. */
+[data-focusable]:focus,
+[data-focusable].nav-focus {
+  background: var(--bg-2);
+  border-color: rgba(var(--accent-rgb), .30);
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+  box-shadow:
+    0 0 0 4px  var(--focus-ring),
+    0 0 0 12px rgba(var(--accent-rgb), .22),
+    0 18px 44px rgba(0, 0, 0, .55);
+  z-index: 2;
+}
+[data-focusable]:focus .tile-title,
+[data-focusable].nav-focus .tile-title { color: var(--ink-mid); }
+
+/* Momentary pressed state. Amazon asks for a visible selected state on OK,
+   distinct from the focus state. */
+[data-focusable].pressed {
+  -webkit-transform: scale(0.99);
+  transform: scale(0.99);
+  transition-duration: 60ms;
+}
+
+/* ======================================================== SPEED TEST ====== */
+
+.speed-body {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.gauge { -webkit-flex: 0 0 auto; flex: 0 0 auto; margin-right: var(--s4); }
+.gauge svg { display: block; width: 7.4rem; height: 7.4rem; }
+.gauge-track { stroke: var(--bg-3); }
+.gauge-fill  { stroke: var(--accent); transition: stroke-dashoffset 260ms linear, stroke 260ms linear; }
+.gauge.up .gauge-fill { stroke: var(--warm); }
+
+.speed-readout { -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
+
+.speed-value {
+  font-size: 2.6rem;
+  font-weight: var(--w-semi);
+  line-height: 1;
+  color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+}
+.speed-value .unit {
+  font-size: var(--t-lg);
+  font-weight: var(--w-med);
+  color: var(--ink-low);
+  margin-left: .25em;
+}
+.speed-stage {
+  font-size: var(--t-md);
+  color: var(--ink-mid);
+  margin-top: var(--s2);
+  min-height: 1.4em;
+}
+.speed-detail {
+  font-size: var(--t-sm);
+  color: var(--ink-low);
+  margin-top: var(--s1);
+  min-height: 1.4em;
+}
+.speed-detail.error { color: var(--bad); }
+
+.speed-metrics {
+  display: -webkit-flex;
+  display: flex;
+  margin-top: var(--s3);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+.metric { -webkit-flex: 1 1 0; flex: 1 1 0; }
+.metric-label {
+  font-size: var(--t-sm);
+  color: var(--ink-low);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.metric-value {
+  font-size: var(--t-lg);
+  font-weight: var(--w-semi);
+  color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+  margin-top: .1em;
+}
+.metric-value.pending { color: var(--ink-low); }
+
+/* =========================================================== SYSTEM ======= */
+
+.sys-row {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: baseline;
+  align-items: baseline;
+  margin-bottom: var(--s3);
+}
+.sys-row:last-child { margin-bottom: 0; }
+/* 5.5rem, not more. The label column steals width from the value, and the
+   longest real string here ("412 MB free of 1.5 GB") wraps to two lines the
+   moment the column passes about 6rem — which then overflows the tile. */
+.sys-label { font-size: var(--t-sm); color: var(--ink-low); -webkit-flex: 0 0 5.5rem; flex: 0 0 5.5rem; }
+.sys-value {
+  font-size: var(--t-md);
+  color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  min-width: 0;              /* let it shrink rather than push the row wider */
+}
+
+.bar {
+  height: .48rem;
+  border-radius: 999px;
+  background: var(--bg-3);
+  overflow: hidden;
+  margin-top: var(--s2);
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  width: 0;
+  transition: width var(--dur-slow) var(--ease), background-color var(--dur) var(--ease);
+}
+.bar-fill.warn { background: var(--warn); }
+.bar-fill.bad  { background: var(--bad); }
+
+.sys-unavailable {
+  font-size: var(--t-sm);
+  color: var(--ink-low);
+  line-height: 1.5;
+}
+
+/* ========================================================== BUTTONS ======= */
+/* Empty in v1. These rules exist now so that adding a button later is a pure
+   data change to config.json, with no CSS to write at that point. */
+
+.actions {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  display: -webkit-flex;
+  display: flex;
+  margin-top: var(--s4);
+}
+.actions:empty { display: none; }   /* v1: collapses cleanly, leaves no ghost gap */
+
+.action {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s3) var(--s4);
+  margin-right: var(--s3);
+  text-align: left;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  position: relative;
+  transition:
+    -webkit-transform var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+.action-icon { width: 2rem; height: 2rem; margin-right: var(--s3); -webkit-flex: 0 0 auto; flex: 0 0 auto; }
+.action-label { font-size: var(--t-md); font-weight: var(--w-semi); color: var(--ink-hi); }
+.action-sub { font-size: var(--t-sm); color: var(--ink-low); margin-top: .1em; }
+
+/* =========================================================== TOAST ======== */
+
+.toast {
+  position: absolute;
+  left: var(--safe-x);
+  bottom: var(--safe-y);
+  max-width: 34rem;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s3) var(--s4);
+  font-size: var(--t-md);
+  color: var(--ink-hi);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .6);
+  opacity: 0;
+  -webkit-transform: translateY(.6rem);
+  transform: translateY(.6rem);
+  transition: opacity var(--dur) var(--ease), -webkit-transform var(--dur) var(--ease), transform var(--dur) var(--ease);
+  pointer-events: none;
+}
+.toast.on { opacity: 1; -webkit-transform: none; transform: none; }
+
+/* ============================================== Not a television ========== */
+/* The site is publicly reachable, so somebody will eventually open it on a
+   phone. This is the only real breakpoint in the file and it exists purely so
+   that visit does not look broken. No Fire TV is anywhere near these
+   dimensions (720p is the floor), so none of it can reach the real target. */
+
+@media (max-width: 900px), (max-height: 560px) {
+  html, body { overflow: auto; cursor: auto; }
+
+  #stage { position: static; min-height: 100%; }
+
+  .wordmark {
+    position: static;
+    display: block;
+    text-align: right;
+    margin-bottom: var(--s3);
+  }
+
+  .clock { margin-bottom: var(--s4); }
+  .clock-time { font-size: 3rem; }
+
+  .tiles { grid-template-columns: 1fr; align-content: start; }
+
+  /* Gauge beside readout needs roughly 30rem to breathe; below that the text
+     column collapses to two words per line. Stack it. */
+  .speed-body { display: block; }
+  .gauge { margin-right: 0; margin-bottom: var(--s3); }
+
+  /* Four metrics side by side become four unreadable slivers well before this
+     width; stack them instead. */
+  .speed-metrics { display: block; }
+  .metric { margin-bottom: var(--s2); }
+
+  .actions { display: block; }
+  .action { margin-right: 0; margin-bottom: var(--s2); }
+}
+
+/* =========================================== 720p / low-memory trims ====== */
+/* A 720p stick is also the slowest hardware in the fleet. Drop the expensive
+   multi-layer shadows there rather than dropping frames. */
+@media (max-height: 760px) {
+  [data-focusable]:focus,
+  [data-focusable].nav-focus { box-shadow: 0 0 0 4px var(--focus-ring), 0 0 0 10px rgba(var(--accent-rgb), .22); }
+  .toast { box-shadow: none; }
+}
+
+
+
+/* ==========================================================================
+   PROMO LAYOUT
+   Active only when config.json contains a `promo` block; app.js puts
+   `.has-promo` on #stage. Without it the page keeps its original layout, so an
+   app with no promo is untouched by any of this.
+
+   The trade: the clock and the speed test are what make somebody keep the app
+   installed, but they are not what this screen is FOR. They shrink to a header
+   and a footer, and the offer takes the middle.
+
+   The hard constraint is VERTICAL. A 16:9 screen at 720p leaves roughly 640px
+   inside the safe area, and that has to hold a header, an offer, a footer and
+   a legal line. Every size below is chosen against that budget — if you make
+   something bigger here, take the room from somewhere else, or the call to
+   action slides off the bottom of the screen where nobody will ever press it.
+   ========================================================================== */
+
+/* --- clock becomes a header line ---------------------------------------- */
+
+.has-promo .clock {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: baseline;
+  align-items: baseline;
+  margin-bottom: var(--s3);
+}
+.has-promo .clock-time     { font-size: var(--t-xl); letter-spacing: 0; }
+.has-promo .clock-secs     { display: none; }   /* ticking seconds are noise up here */
+.has-promo .clock-meridiem { font-size: var(--t-md); margin-left: .4em; }
+.has-promo .clock-date {
+  font-size: var(--t-md);
+  margin-top: 0;
+  margin-left: var(--s3);
+  color: var(--ink-low);
+}
+
+/* --- the offer ----------------------------------------------------------- */
+
+.promo {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-align-items: center;
+  align-items: center;
+  min-height: 0;          /* so it can give room back rather than overflow */
+}
+
+.promo-main { -webkit-flex: 1 1 0; flex: 1 1 0; min-width: 0; }
+
+.promo-eyebrow {
+  font-size: var(--t-sm);
+  font-weight: var(--w-semi);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+  margin-bottom: var(--s1);
+}
+
+.promo-title {
+  font-size: 2.8rem;
+  font-weight: var(--w-bold);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink-hi);
+}
+
+.promo-subtitle {
+  font-size: var(--t-lg);
+  font-weight: var(--w-med);
+  color: var(--ink-mid);
+  margin-top: var(--s1);
+}
+
+.promo-lead {
+  font-size: var(--t-md);
+  color: var(--ink-hi);
+  line-height: 1.4;
+  margin-top: var(--s1);
+  max-width: 30rem;
+}
+
+/* --- the one action ------------------------------------------------------ */
+
+.promo-cta {
+  display: inline-block;
+  /* s2 not s3: the promo column lands within a few pixels of its vertical
+     budget, and this margin is the cheapest place to buy slack without making
+     any text smaller. */
+  margin-top: var(--s2);
+  padding: var(--s2) var(--s4);
+  font-size: var(--t-lg);
+  font-weight: var(--w-bold);
+  letter-spacing: .01em;
+  color: var(--on-cta);
+  background: var(--cta);
+  border: 0;
+  border-radius: var(--r-md);
+  position: relative;
+  /* A resting bloom, echoing the glow in the Pulse Player mark. Present even
+     unfocused, so the button reads as lit rather than flat — and so the eye
+     lands on it before anything else on the screen. */
+  box-shadow: 0 6px 26px rgba(var(--cta-rgb), .26);
+  transition:
+    -webkit-transform var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+/* The generic focus rule repaints a focused element with the surface colour,
+   which would erase the button's fill and leave a grey rectangle. Restate the
+   fill so the button grows and gains a ring WITHOUT stopping looking like a
+   button. Declared after that rule, so equal specificity resolves here. */
+.promo-cta:focus,
+.promo-cta.nav-focus {
+  background: var(--cta);
+  border-color: transparent;
+  -webkit-transform: scale(1.06);
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 4px  var(--focus-ring),
+    0 0 0 13px rgba(var(--cta-rgb), .30),
+    0 0 52px  rgba(var(--cta-rgb), .45),
+    0 20px 48px rgba(0, 0, 0, .6);
+}
+
+.promo-note {
+  font-size: var(--t-sm);
+  color: var(--ink-mid);
+  margin-top: var(--s1);
+}
+/* Says what pressing OK actually does. One small line, and it removes the
+   hesitation of not knowing where a button on a shared TV will take you. */
+.promo-opens {
+  font-size: var(--t-sm);
+  color: var(--ink-low);
+  margin-top: .2em;
+}
+
+/* --- second column: artwork and benefits --------------------------------- */
+
+.promo-side {
+  -webkit-flex: 0 0 36%;
+  flex: 0 0 36%;
+  margin-left: var(--s5);
+  min-width: 0;
+}
+
+.promo-art { margin-bottom: var(--s2); text-align: center; }
+.promo-art img {
+  max-width: 100%;
+  /* 6.5rem, not larger. The right column has to hold the mark AND three
+     benefit lines inside the same height the left column gets, and the mark is
+     the part that can shrink without losing meaning. */
+  max-height: 6.5rem;
+  /* No border or radius: the artwork is a glowing mark on transparency, and a
+     frame around a glow looks like a mistake. */
+}
+/* Only reached when a configured image fails to load. A play glyph beats a
+   broken-image icon, and beats a hole in the layout that reads as breakage. */
+.promo-art.fallback {
+  min-height: 7rem;
+  border: 2px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-1);
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+.promo-art.fallback::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 2rem solid var(--accent);
+  border-top: 1.25rem solid transparent;
+  border-bottom: 1.25rem solid transparent;
+  margin-left: .4rem;
+}
+
+.promo-bullets { list-style: none; margin: 0; padding: 0; }
+.promo-bullets li {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+  font-size: var(--t-md);
+  color: var(--ink-mid);
+  line-height: 1.35;
+  margin-bottom: var(--s2);
+}
+.promo-bullets li:last-child { margin-bottom: 0; }
+.promo-tick {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  width: .55em;
+  height: .55em;
+  border-radius: 999px;
+  background: var(--cta-dim);
+  margin-right: .75em;
+  margin-top: .4em;
+}
+
+/* Full width, below both columns. Fine print, but at the same --t-sm floor as
+   everything else: a disclaimer nobody can read from the sofa is not one. */
+.promo-legal {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  font-size: var(--t-sm);
+  color: var(--ink-low);
+  line-height: 1.35;
+  margin-top: var(--s2);
+}
+.promo-legal:empty { display: none; }
+
+/* --- speed and device shrink into a footer ------------------------------- */
+
+.has-promo .tiles {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  grid-template-columns: 1.25fr 1fr;
+  grid-gap: var(--s3);
+  align-content: start;
+  margin-top: var(--s2);
+}
+.has-promo .tile { padding: var(--s2); }
+.has-promo .tile-head { margin-bottom: var(--s1); }
+
+/* The gauge is the first thing to go: it is 4rem of height for information the
+   number beside it already gives. */
+.has-promo .gauge { display: none; }
+.has-promo .speed-value { font-size: var(--t-lg); }
+.has-promo .speed-value .unit { font-size: var(--t-md); }
+
+/* min-height comes off so these collapse when empty instead of holding open a
+   gap the footer cannot spare. Errors still appear — they simply do not
+   reserve space while nothing is wrong. */
+.has-promo .speed-stage,
+.has-promo .speed-detail { font-size: var(--t-sm); min-height: 0; margin-top: .2em; }
+/* Every pixel taken off the footer is a pixel the offer gets back: the promo
+   is the flexible item, so the two trade directly. */
+.has-promo .speed-metrics { margin-top: var(--s1); padding-top: var(--s1); }
+/* Label and value share a line instead of stacking. Four stacked metrics cost
+   about 40px of a footer that has none to give, and read no better. */
+.has-promo .metric {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: baseline;
+  align-items: baseline;
+}
+.has-promo .metric { padding-right: var(--s2); }
+.has-promo .metric-label { margin-right: .45em; }
+.has-promo .metric-value { font-size: var(--t-sm); margin-top: 0; }
+
+/* The idle blurb is two lines explaining that the test uses real data — worth
+   saying when the speed test is the point of the screen, not when it is a
+   footer. Errors are exempt: those must never be silently hidden. */
+.has-promo .speed-detail { display: none; }
+.has-promo .speed-detail.error { display: block; }
+
+.has-promo .sys-row--secondary { display: none; }
+.has-promo .sys-row { margin-bottom: var(--s1); }
+.has-promo .sys-value { font-size: var(--t-sm); }
+.has-promo .bar { height: .34rem; }
+
+/* --- not a television ---------------------------------------------------- */
+@media (max-width: 900px), (max-height: 560px) {
+  .promo { display: block; }
+  .promo-side { margin-left: 0; margin-top: var(--s3); }
+  .promo-title { font-size: 2.1rem; }
+  .promo-cta { display: block; text-align: center; }
+}

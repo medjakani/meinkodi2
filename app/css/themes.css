@@ -1,0 +1,113 @@
+/* ---------------------------------------------------------------------------
+   Themes.
+
+   One page, several brands. tokens.css defines the default; each block here
+   overrides it for one `data-theme` value, which boot.js sets from the `?t=`
+   parameter in the URL before the first paint.
+
+   Setting it that early matters: if the theme arrived later — from config.json,
+   say — the viewer would see the blue palette flash and then turn amber. The
+   URL is known at load time, so there is nothing to wait for.
+
+   A theme changes colour AND shape. Two palettes on identical geometry still
+   read as the same app wearing a different coat.
+
+   Adding a brand is a block here plus a config file. Nothing else.
+   --------------------------------------------------------------------------- */
+
+
+/* === aurora — cool blue on near-black. The default. ======================= */
+/* Declared explicitly rather than left implicit, so the two brands are
+   symmetrical and neither is "the special one". */
+
+:root[data-theme="aurora"] {
+  --bg:        #0B0E14;
+  --bg-1:      #141924;
+  --bg-2:      #1C2231;
+  --bg-3:      #262E3F;
+  --line:      #2A3244;
+
+  --ink-hi:    #F2F5FA;
+  --ink-mid:   #A6B0C3;
+  --ink-low:   #6C7893;
+
+  --accent:     #4EA8FF;
+  --accent-rgb: 78, 168, 255;
+  --on-accent:  #0B0E14;
+
+  /* --- Call to action -----------------------------------------------------
+     Sampled from the Pulse Player icon itself (#FE8703), not guessed and not
+     Amazon's #FF9900 — so the button and the product's own mark are the same
+     colour on screen.
+
+     Deliberately NOT --accent. The page chrome stays cool grey-blue and this is
+     the only saturated colour anywhere on it, which is what makes the button
+     read as "the one thing to press" rather than as another blue element among
+     blue elements. Spreading it around would destroy that. */
+  --cta:      #FE8703;
+  --cta-rgb:  254, 135, 3;
+  --cta-dim:  #A9631A;
+  /* Warm near-black rather than #000: pure black on a saturated orange looks
+     harsh and cheap at 10 feet. */
+  --on-cta:   #1A0F02;
+
+  --accent-dim: #2B6FB5;
+  --focus-ring: rgba(255, 255, 255, .92);
+  --warm:       #FFB454;
+  --ok:         #4ADE80;
+  --warn:       #FBBF24;
+  --bad:        #F87171;
+
+  --r-sm: 0.30rem;
+  --r-md: 0.55rem;
+  --r-lg: 0.85rem;
+}
+
+
+/* === ember — warm charcoal and amber ====================================== */
+
+:root[data-theme="ember"] {
+  /* Warm near-black. Still not #000, for the same banding reason, but the
+     whole neutral ramp is pushed towards red so the amber does not look
+     pasted onto a cold background. */
+  --bg:        #12100D;
+  --bg-1:      #1C1815;
+  --bg-2:      #262019;
+  --bg-3:      #332B22;
+  --line:      #3A3128;
+
+  --ink-hi:    #F7F3EC;
+  --ink-mid:   #C4B8A8;
+  --ink-low:   #8C8175;
+
+  --accent:     #FF9F45;
+  --accent-rgb: 255, 159, 69;
+  --on-accent:  #12100D;
+
+  /* Same CTA colour as aurora: Pulse Player has one brand orange, whichever
+     app shows the offer. */
+  --cta:      #FE8703;
+  --cta-rgb:  254, 135, 3;
+  --cta-dim:  #A9631A;
+  --on-cta:   #1A0F02;
+  --accent-dim: #B36F2E;
+  /* Warm white, not pure white: on the ember palette #FFF reads as a cold
+     cut-out sitting on top of the design. */
+  --focus-ring: rgba(247, 243, 236, .94);
+
+  /* The upload gauge uses --warm and the download gauge uses --accent. In a
+     warm palette those two would be nearly the same colour, so separate them
+     by LIGHTNESS instead of hue — which also survives a washed-out panel and
+     colour-blind viewers, where a hue shift would not. */
+  --warm:       #FFD9A0;
+
+  --ok:         #7BC96F;
+  --warn:       #FFC857;
+  --bad:        #F2726F;
+
+  /* Tighter corners than aurora. Part of what makes it a different app rather
+     than a recolour. */
+  --r-sm: 0.20rem;
+  --r-md: 0.38rem;
+  --r-lg: 0.55rem;
+}

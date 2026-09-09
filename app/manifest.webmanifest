@@ -1,0 +1,11 @@
+{
+  "name": "KD Fireboard",
+  "short_name": "KD Fireboard",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0B0E14",
+  "theme_color": "#0B0E14",
+  "icons": []
+}

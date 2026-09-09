@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- A TV WebView reports a real pixel viewport; boot.js drives all sizing from
+     viewport height, so no scaling hints are wanted here. -->
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0B0E14">
+<meta name="color-scheme" content="dark">
+<!-- Fallback only. strings.js is the single source of truth for the name;
+     app.js overwrites this on boot. Change it there, not here. -->
+<title>KD Fireboard</title>
+<link rel="manifest" href="manifest.webmanifest">
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/themes.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/tv.css">
+
+<!-- boot.js must run before anything else: it installs the on-screen error
+     trap. If it loads late, a parse error anywhere else is an invisible black
+     screen with no way to diagnose it from a sofa. -->
+<script src="js/boot.js"></script>
+</head>
+
+<body>
+
+  <div id="stage">
+
+    <!-- Absolutely positioned, so it sits outside the column flow and
+         cannot push the tiles around. Text is set by app.js. -->
+    <div class="wordmark" id="wordmark"></div>
+
+    <div class="clock" id="clock"></div>
+
+    <!-- The offer. Empty and hidden unless config.json carries a `promo`
+         block, so an app without one is completely unaffected. -->
+    <div class="promo" id="promo" style="display:none"></div>
+
+    <div class="tiles">
+      <!-- data-focusable is what nav.js collects. Anything actionable must
+           carry it, or it is unreachable by remote and Amazon will fail it. -->
+      <div class="tile" id="tile-speed"  data-focusable tabindex="0"></div>
+      <div class="tile" id="tile-system" data-focusable tabindex="0"></div>
+    </div>
+
+    <!-- Empty in v1. .actions:empty collapses it, so the layout reads as
+         finished rather than as something with a hole in it. -->
+    <div class="actions" id="actions"></div>
+
+    <!-- Fine print sits at the foot of the stage, not inside the promo block:
+         as a wrapped flex child it escaped the promo's box and rendered behind
+         the tiles. -->
+    <div class="promo-legal" id="promo-legal"></div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- A TV has no dev tools. This is where errors go. -->
+  <div id="fatal">
+    <h2>Something went wrong on this screen</h2>
+    <pre></pre>
+    <p class="hint">Hold the Home button and reopen the app to try again.</p>
+  </div>
+
+  <script src="js/strings.js"></script>
+  <script src="js/bridge.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/widgets/clock.js"></script>
+  <script src="js/widgets/speed.js"></script>
+  <script src="js/widgets/system.js"></script>
+  <script src="js/widgets/promo.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
