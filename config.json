@@ -1,33 +1,13 @@
 {
   "schemaVersion": 1,
-  "appName": "KD Fireboard",
-  "theme": "aurora",
+  "appName": "Lumen Board",
+  "theme": "ember",
   "lang": "de",
-  "contentUrl": "https://medjakani.github.io/meinkodi/app/?t=aurora&b=KD+Fireboard",
-  "contentVersion": "2026.08.31-4",
+  "contentUrl": "https://medjakani.github.io/meinkodi2/app/?t=ember&b=Lumen+Board",
+  "contentVersion": "2026.09.09-1",
   "minShellVersionCode": 1,
   "keepScreenOn": true,
   "refreshMinutes": 360,
   "notice": null,
-  "promo": {
-    "eyebrow": "Kodi für den Fire TV Stick gesucht?",
-    "title": "Pulse Player",
-    "subtitle": "Media Center auf Kodi-Basis",
-    "lead": "Direkt aus dem Amazon Appstore – ohne Sideloading.",
-    "bullets": [
-      "Ein Klick statt ADB und Downloader",
-      "Auf Basis des quelloffenen Kodi",
-      "Lokale Dateien, SMB, DLNA, Add-ons"
-    ],
-    "cta": {
-      "label": "Im Amazon Appstore ansehen",
-      "asin": "B0H96QGQN3",
-      "webUrl": "https://www.amazon.de/dp/B0H96QGQN3",
-      "purchaseFlow": false
-    },
-    "note": "Einmaliger Kauf · Kein Abo · Keine Werbung",
-    "disclaimer": "Unabhängiges Projekt auf Basis von Kodi (GPL). Nicht mit der XBMC Foundation verbunden. Kodi® ist deren eingetragene Marke.",
-    "image": "img/pulse-player.png"
-  },
   "buttons": []
 }
