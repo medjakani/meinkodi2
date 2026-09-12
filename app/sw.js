@@ -18,7 +18,7 @@
    whichever app activated last wiped the other one's offline cache and broke
    its no-network clock. Scoping every key to this app fixes it. */
 var APP   = 'lumen';
-var CACHE = APP + '-2026.09.09-1';
+var CACHE = APP + '-2026.09.12-2';
 
 var PRECACHE = [
   './',

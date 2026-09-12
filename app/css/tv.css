@@ -477,31 +477,113 @@
   max-width: 30rem;
 }
 
-/* --- the one action ------------------------------------------------------ */
+/* --- the two actions -----------------------------------------------------
+   One row, two buttons, deliberately unequal. See the long note at the top of
+   promo.js for why there are two at all.
 
-.promo-cta {
-  display: inline-block;
+   They are flex items rather than content-sized inline-blocks on purpose: the
+   labels are translatable, and a German string that is fine at 1080p can be
+   four characters too wide at 720p. Content sizing would silently wrap the row
+   and push the buttons off the bottom of a screen nobody can scroll. Sharing
+   the row proportionally cannot overflow, whatever the copy says.
+
+   The 1.35/1 split is the hierarchy in geometry: the primary is a third wider
+   before colour is involved at all, so it still reads as the main action on a
+   washed-out panel or for a colour-blind viewer. */
+
+.promo-actions {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: stretch;
+  align-items: stretch;   /* equal heights whatever the sublabels say */
   /* s2 not s3: the promo column lands within a few pixels of its vertical
      budget, and this margin is the cheapest place to buy slack without making
      any text smaller. */
   margin-top: var(--s2);
-  padding: var(--s2) var(--s4);
-  font-size: var(--t-lg);
-  font-weight: var(--w-bold);
-  letter-spacing: .01em;
-  color: var(--on-cta);
-  background: var(--cta);
-  border: 0;
+}
+/* With nothing to sit beside, the primary goes back to being sized by its own
+   label rather than stretching across the whole column. A lone button as wide
+   as the paragraph above it reads as a banner, not as something to press. */
+.promo-actions.single { display: block; }
+
+.promo-cta,
+.promo-alt {
+  -webkit-flex: 1.35 1 0;
+  flex: 1.35 1 0;
+  min-width: 0;           /* required, or a long label refuses to shrink */
+  display: block;
+  text-align: center;
+  padding: var(--s2) var(--s3);
   border-radius: var(--r-md);
   position: relative;
+  transition:
+    -webkit-transform var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+.promo-actions.single .promo-cta {
+  display: inline-block;
+  padding: var(--s2) var(--s4);
+}
+
+.promo-cta {
+  color: var(--on-cta);
+  background: var(--cta);
+  border: 2px solid var(--cta);
   /* A resting bloom, echoing the glow in the Pulse Player mark. Present even
      unfocused, so the button reads as lit rather than flat — and so the eye
      lands on it before anything else on the screen. */
   box-shadow: 0 6px 26px rgba(var(--cta-rgb), .26);
-  transition:
-    -webkit-transform var(--dur) var(--ease),
-    transform var(--dur) var(--ease),
-    box-shadow var(--dur) var(--ease);
+}
+
+/* The secondary. An outline, never a second fill: two filled buttons side by
+   side make the viewer choose, and a viewer choosing is a viewer not pressing.
+   This one has to be findable and legible — it is the honest half of the offer
+   — without ever being the thing the eye lands on first. */
+.promo-alt {
+  -webkit-flex: 1 1 0;
+  flex: 1 1 0;
+  margin-left: var(--s3);
+  color: var(--ink-mid);
+  background: transparent;
+  border: 2px solid var(--line);
+}
+
+.cta-label {
+  display: block;
+  font-size: var(--t-lg);
+  font-weight: var(--w-bold);
+  line-height: 1.1;
+  letter-spacing: .01em;
+  /* Never wrap a button label. A two-line label on one button and a one-line
+     label on the other makes the row look broken from across a room. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Smaller on the secondary. Part of the same hierarchy as the width: the two
+   labels are not equals and should not be set as equals. */
+.promo-alt .cta-label { font-size: var(--t-md); font-weight: var(--w-semi); }
+
+/* The price of each route, in plain words. This line is doing most of the
+   persuading on this screen and all of it is true: one is a single press, the
+   other is twenty minutes of developer options. Stating both is what makes the
+   first believable. */
+.cta-sub {
+  display: block;
+  font-size: var(--t-sm);
+  font-weight: var(--w-med);
+  line-height: 1.2;
+  margin-top: .25em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Carried on the button's own colour at reduced alpha rather than a fixed
+     grey, so it stays legible on the orange fill and on the dark outline
+     without needing a second rule per theme. */
+  opacity: .72;
 }
 
 /* The generic focus rule repaints a focused element with the surface colour,
@@ -511,7 +593,7 @@
 .promo-cta:focus,
 .promo-cta.nav-focus {
   background: var(--cta);
-  border-color: transparent;
+  border-color: var(--cta);
   -webkit-transform: scale(1.06);
   transform: scale(1.06);
   box-shadow:
@@ -521,25 +603,55 @@
     0 20px 48px rgba(0, 0, 0, .6);
 }
 
-.promo-note {
+/* Focused, the secondary brightens to full ink and takes the accent — not the
+   CTA orange. Borrowing the primary's colour on focus would make the two
+   buttons look identical at the exact moment the viewer is deciding between
+   them. */
+.promo-alt:focus,
+.promo-alt.nav-focus {
+  background: var(--bg-2);
+  color: var(--ink-hi);
+  border-color: rgba(var(--accent-rgb), .55);
+  -webkit-transform: scale(1.04);
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 4px  var(--focus-ring),
+    0 0 0 12px rgba(var(--accent-rgb), .22),
+    0 18px 44px rgba(0, 0, 0, .55);
+}
+
+/* The fine print: the terms of the offer AND what pressing OK actually does,
+   on ONE line separated by a middot.
+
+   They used to be two stacked lines. Merging them was forced by the second
+   button — the action row grew a sublabel inside each button and the left
+   column started overflowing its box by ~18px, far enough to touch the footer
+   tiles. This was the right 20px to give up: two grey micro-lines under a
+   button are visual noise, and neither sentence is weakened by sharing a line.
+
+   Do not delete the "opens the Appstore" half to save more. Saying where a
+   button on a shared living-room screen will take you is what removes the
+   hesitation before pressing it.
+
+   s2, not s1: the focused primary scales 1.06 and carries a 13px halo, and at
+   the smaller margin this line sat inside the glow — which on a TV reads as
+   text bleeding out of the button. */
+.promo-fine {
   font-size: var(--t-sm);
   color: var(--ink-mid);
-  margin-top: var(--s1);
+  margin-top: var(--s2);
 }
-/* Says what pressing OK actually does. One small line, and it removes the
-   hesitation of not knowing where a button on a shared TV will take you. */
-.promo-opens {
-  font-size: var(--t-sm);
-  color: var(--ink-low);
-  margin-top: .2em;
-}
+.promo-fine .promo-opens { color: var(--ink-low); }
 
 /* --- second column: artwork and benefits --------------------------------- */
 
+/* 30%, down from 36%, and a smaller gutter. The action row now holds two
+   buttons instead of one and needs the width more than the bullets do —
+   narrowing this column is what keeps both labels on one line each at 720p. */
 .promo-side {
-  -webkit-flex: 0 0 36%;
-  flex: 0 0 36%;
-  margin-left: var(--s5);
+  -webkit-flex: 0 0 30%;
+  flex: 0 0 30%;
+  margin-left: var(--s4);
   min-width: 0;
 }
 
@@ -661,10 +773,161 @@
 .has-promo .sys-value { font-size: var(--t-sm); }
 .has-promo .bar { height: .34rem; }
 
+/* ==========================================================================
+   THE MANUAL ROUTE
+   A second screen, shown when the viewer presses the secondary button. Opened
+   and closed by promo.js, which puts `.guide-open` on #stage.
+
+   It takes the WHOLE stage: the clock, the offer and the footer tiles all go
+   away while it is up. That is not tidiness — six numbered steps at a size
+   readable from a sofa do not fit alongside them, and a television must never
+   scroll to reach content.
+   ========================================================================== */
+
+/* #stage beats `.has-promo .clock` on specificity, which is the point: these
+   have to win against the promo layout's own display rules. */
+#stage.guide-open .clock,
+#stage.guide-open .promo,
+#stage.guide-open .tiles,
+#stage.guide-open .promo-legal { display: none; }
+
+#stage.guide-open .guide {
+  display: -webkit-flex;
+  display: flex;
+}
+
+.guide {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  /* Centred as one block. Pinned to the top, the steps left a hole between
+     themselves and the action row that read as a half-loaded screen; the
+     alternative — stretching the steps to fill it — spaces six short lines so
+     far apart they stop looking like one list. */
+  -webkit-justify-content: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.guide-head { -webkit-flex: 0 0 auto; flex: 0 0 auto; }
+
+.guide-title {
+  font-size: var(--t-xl);
+  font-weight: var(--w-bold);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink-hi);
+}
+.guide-lead {
+  font-size: var(--t-md);
+  color: var(--ink-mid);
+  line-height: 1.35;
+  margin-top: var(--s1);
+  max-width: 46rem;
+}
+
+/* Two columns. Six steps stacked vertically is about 400px at this size, which
+   with a heading and an action row does not fit inside 720p's safe area. Side
+   by side they fit with room to spare, and a wide short block is the shape a
+   television wants anyway. */
+.guide-body {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+  margin-top: var(--s3);
+  min-height: 0;
+}
+
+.guide-steps {
+  -webkit-flex: 1 1 0;
+  flex: 1 1 0;
+  min-width: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.guide-steps + .guide-steps { margin-left: var(--s4); }
+
+.guide-steps li {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+  font-size: var(--t-md);
+  color: var(--ink-mid);
+  line-height: 1.3;
+  margin-bottom: var(--s2);
+}
+.guide-steps li:last-child { margin-bottom: 0; }
+
+/* Numbered, not bulleted. The count IS the argument — "step 5 of 6" tells the
+   viewer how long this is going to take faster than any sentence could. */
+.guide-num {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  width: 1.6em;
+  height: 1.6em;
+  margin-right: .7em;
+  border-radius: 999px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--ink-low);
+  font-size: var(--t-sm);
+  font-weight: var(--w-bold);
+  line-height: 1.5em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* s5, because the focused primary's halo reaches ~13px past its own edge and
+   at s4 it washed over the last step in the left column. */
+.guide-foot { -webkit-flex: 0 0 auto; flex: 0 0 auto; margin-top: var(--s5); }
+
+.guide-actions {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: stretch;
+  align-items: stretch;
+}
+/* Narrower than the main screen's row: here the buttons sit under a block of
+   text rather than beside a column, and a full-width pair would read as a
+   footer bar rather than as two things to press. */
+.guide-cta { -webkit-flex: 0 1 24rem; flex: 0 1 24rem; }
+.guide-back { -webkit-flex: 0 1 11rem; flex: 0 1 11rem; }
+
+.guide-foot-note {
+  font-size: var(--t-sm);
+  color: var(--ink-low);
+  line-height: 1.35;
+  margin-top: var(--s2);
+  max-width: 52rem;
+}
+
 /* --- not a television ---------------------------------------------------- */
 @media (max-width: 900px), (max-height: 560px) {
   .promo { display: block; }
   .promo-side { margin-left: 0; margin-top: var(--s3); }
   .promo-title { font-size: 2.1rem; }
-  .promo-cta { display: block; text-align: center; }
+
+  /* Off a TV there is no D-pad and no 10-foot distance, so the row can stack.
+     Wrapping is what stops two full-size buttons from crushing each other on a
+     phone-width browser window. */
+  .promo-actions,
+  .guide-actions {
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+  }
+  .promo-cta,
+  .promo-alt {
+    -webkit-flex: 1 1 14rem;
+    flex: 1 1 14rem;
+  }
+  .promo-alt { margin-left: var(--s2); }
+
+  .guide-body { display: block; }
+  .guide-steps + .guide-steps { margin-left: 0; margin-top: var(--s2); }
 }

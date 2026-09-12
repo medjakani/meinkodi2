@@ -37,6 +37,11 @@
          block, so an app without one is completely unaffected. -->
     <div class="promo" id="promo" style="display:none"></div>
 
+    <!-- The manual route. A second screen, not a panel: it takes the whole
+         stage when open. Filled in by promo.js the first time it is asked for,
+         so an app whose config has no `guide` never pays for it. -->
+    <div class="guide" id="guide" style="display:none"></div>
+
     <div class="tiles">
       <!-- data-focusable is what nav.js collects. Anything actionable must
            carry it, or it is unreachable by remote and Amazon will fail it. -->

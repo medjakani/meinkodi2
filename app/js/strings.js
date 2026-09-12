@@ -59,6 +59,13 @@ window.STRINGS = {
     'sys.unreadable':       'Device details could not be read.',
 
     'promo.opens':          'Opens the Amazon Appstore on this device',
+    /* Fallback only. config.json's `guide.back` overrides it, so the label
+       can be reworded without a deploy of this file. */
+    'guide.back':           'Back',
+
+    /* Developer-facing, and shown in a browser only — see configFailed()
+       in app.js. Never reaches a Fire TV. */
+    'config.err.dev':       'Configuration not loaded ({0}). Serve the folder that CONTAINS /app/, not /app/ itself.',
     'action.open':          'Open',
     'action.get':           'Get',
     'action.err.nostore':   'The Amazon Appstore could not be opened on this device.',
@@ -112,6 +119,9 @@ window.STRINGS = {
     'sys.unreadable':       'Gerätedaten konnten nicht gelesen werden.',
 
     'promo.opens':          'Öffnet den Amazon Appstore auf diesem Gerät',
+    'guide.back':           'Zurück',
+
+    'config.err.dev':       'Konfiguration nicht geladen ({0}). Bitte den Ordner ÜBER /app/ ausliefern, nicht /app/ selbst.',
     'action.open':          'Öffnen',
     'action.get':           'Holen',
     'action.err.nostore':   'Der Amazon Appstore konnte auf diesem Gerät nicht geöffnet werden.',

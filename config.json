@@ -4,10 +4,51 @@
   "theme": "ember",
   "lang": "de",
   "contentUrl": "https://medjakani.github.io/meinkodi2/app/?t=ember&b=Lumen+Board",
-  "contentVersion": "2026.09.09-1",
+  "contentVersion": "2026.09.12-2",
   "minShellVersionCode": 1,
   "keepScreenOn": true,
   "refreshMinutes": 360,
   "notice": null,
+  "promo": {
+    "eyebrow": "Kodi für den Fire TV Stick gesucht?",
+    "title": "Zwei Wege zu Kodi",
+    "subtitle": "Kodi gibt es nicht im Amazon Appstore.",
+    "lead": "Pulse Player schon – Kodi 21 „Omega“, fertig eingerichtet.",
+    "bullets": [
+      "Automatische Bibliothek mit Covern",
+      "Kein ADB, keine Entwickleroptionen",
+      "Heimnetz, USB, fast alle Formate"
+    ],
+    "cta": {
+      "label": "Pulse Player installieren",
+      "sublabel": "Appstore · 1 Klick · 30 Sekunden",
+      "asin": "B0H96QGQN3",
+      "webUrl": "https://www.amazon.de/dp/B0H96QGQN3",
+      "purchaseFlow": false
+    },
+    "alt": {
+      "label": "Kodi manuell laden",
+      "sublabel": "Sideload · ca. 20 Minuten"
+    },
+    "note": "Einmaliger Kauf · Kein Abo",
+    "disclaimer": "Unabhängiges Projekt auf Basis von Kodi (GPL). Nicht mit der XBMC Foundation verbunden. Kodi® ist deren eingetragene Marke.",
+    "image": "img/pulse-player.png",
+    "guide": {
+      "title": "Kodi von Hand installieren",
+      "lead": "Kodi ist quelloffen und kostenlos, steht aber nicht im Amazon Appstore. Von Hand dauert die Installation etwa 20 Minuten:",
+      "steps": [
+        "Einstellungen → Mein Fire TV → Entwickleroptionen öffnen",
+        "„Apps unbekannter Herkunft“ für den Downloader erlauben",
+        "Downloader aus dem Amazon Appstore installieren",
+        "In Downloader die Adresse kodi.tv/download öffnen",
+        "Android → ARMV7A (32BIT) wählen und installieren",
+        "Bei jedem Kodi-Update alles wiederholen – Sideloads aktualisieren sich nicht"
+      ],
+      "footnote": "Kodi ist ein freies Projekt der XBMC Foundation und auf kodi.tv kostenlos erhältlich. Diese Übersicht ist rein informativ; die Installation erfolgt auf eigene Verantwortung.",
+      "cta": "Pulse Player installieren",
+      "ctaSub": "Kodi 21 „Omega“ – ohne die 20 Minuten",
+      "back": "Zurück"
+    }
+  },
   "buttons": []
 }

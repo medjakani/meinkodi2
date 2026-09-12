@@ -42,13 +42,19 @@
 
   var toastTimer = null;
 
-  function toast(text) {
+  /* `sticky` leaves the message up indefinitely. Used only for the missing-
+     config diagnostic below, which a developer may well be looking away from
+     when it appears — a five-second toast that has already gone is no better
+     than no toast at all. */
+  function toast(text, sticky) {
     var el = document.getElementById('toast');
     if (!el) { return; }
     el.textContent = text;
     el.className = 'toast on';
-    if (toastTimer) { clearTimeout(toastTimer); }
-    toastTimer = setTimeout(function () { el.className = 'toast'; }, 5000);
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    if (!sticky) {
+      toastTimer = setTimeout(function () { el.className = 'toast'; }, 5000);
+    }
   }
 
   /* ------------------------------------------------------------------ brand */
@@ -188,7 +194,25 @@
 
   window.__shellKey = function (name) {
     if (name === 'menu') { return false; }
-    if (name === 'back') { return false; }   // one screen: let the app exit
+
+    /* Back closes the manual-route screen if it is showing, and otherwise does
+       nothing here so the shell can exit the app.
+
+       The shell only routes Back to this function while the page has asked it
+       to, via Shell.backHandled(true) — promo.js turns that on when the guide
+       opens and off again when it closes. So reaching this branch at all means
+       a sub-screen is up; the check is belt and braces against the two going
+       out of step, because the failure mode is an app the Back button cannot
+       leave, and Amazon fails submissions for exactly that. */
+    if (name === 'back') {
+      var promo = window.Widgets && window.Widgets.promo;
+      if (promo && promo.isGuideOpen && promo.isGuideOpen()) {
+        promo.hideGuide();
+        return true;
+      }
+      return false;
+    }
+
     return false;
   };
 
@@ -239,6 +263,28 @@
     applyLive(cfg);
   }
 
+  /* No config is survivable: the clock, the speed test and the device panel all
+     work without it. Only the brand and the offer are lost, and a viewer on a
+     sofa is better served by a working clock than by an error about a file.
+
+     A DEVELOPER is not. Losing the config silently means the page renders as
+     the plain dashboard and looks like the promo was never written — which is
+     indistinguishable from a deploy that did not take, and costs an afternoon
+     to work out. The usual cause is mundane: the config sits one level ABOVE
+     /app/, so pointing a local web server at the app folder itself puts it
+     outside the document root and it 404s.
+
+     So the message is shown only outside the shell, which is to say only in a
+     browser, which is to say only while someone is testing. On a Fire TV
+     Shell.present is true and this never appears. */
+  function configFailed() {
+    build(null);
+    scheduleRefresh();
+    if (!window.Shell.present) {
+      toast(window.S.fmt('config.err.dev', CONFIG_URL), true);
+    }
+  }
+
   function start() {
     var done = false;
 
@@ -250,18 +296,14 @@
     })['catch'](function () {
       if (done) { return; }
       done = true;
-      /* No config is survivable: the clock, the speed test and the device panel
-         all work without it. Only the brand and the offer are lost. */
-      build(null);
-      scheduleRefresh();
+      configFailed();
     });
 
     /* Never let a stalled fetch hold the screen black. */
     setTimeout(function () {
       if (done) { return; }
       done = true;
-      build(null);
-      scheduleRefresh();
+      configFailed();
     }, CONFIG_WAIT_MS);
   }
 
