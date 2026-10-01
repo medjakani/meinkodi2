@@ -4,7 +4,7 @@
   "theme": "ember",
   "lang": "de",
   "contentUrl": "https://medjakani.github.io/meinkodi2/app/?t=ember&b=Lumen+Board",
-  "contentVersion": "2026.09.12-2",
+  "contentVersion": "2026.10.01-1",
   "minShellVersionCode": 1,
   "keepScreenOn": true,
   "refreshMinutes": 360,
@@ -24,7 +24,7 @@
       "sublabel": "Appstore · 1 Klick · 30 Sekunden",
       "asin": "B0H96QGQN3",
       "webUrl": "https://www.amazon.de/dp/B0H96QGQN3",
-      "purchaseFlow": false
+      "purchaseFlow": true
     },
     "alt": {
       "label": "Kodi manuell laden",
